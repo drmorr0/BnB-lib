@@ -22,7 +22,14 @@ gmon.out
 *.out
 *~
 
+# CMake output files
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+
 # Miscellaneous
 .svn
 
 # Put your stuff here
+bnbtest
