@@ -12,26 +12,33 @@
 
 #include "subproblem.h"
 
+#include <memory>
+
 namespace BnB
 {
 
-template <class SearchContainerT>
+class SearchContainer
+{
+public:
+	virtual void push(const Subproblem& s) = 0;
+	virtual Subproblem pop() = 0;
+	virtual bool empty() = 0;
+};
+
 class Tree
 {
 public:
-	Tree(const Subproblem& root);
+	Tree(const Subproblem& root, SearchContainer* searcher);
 	Subproblem explore();
 
 private:
-	SearchContainerT mActive;	
+	std::unique_ptr<SearchContainer> mActive;
 	Subproblem mIncumb;
 	int mNumExplored;
 	int mNumGenerated;
 };
 
 };
-
-#include "bnbtree_impl.h"
 
 #endif // BNBTREE_H
 

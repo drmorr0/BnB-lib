@@ -16,7 +16,7 @@ class Subproblem
 {
 public:
 	Subproblem(int d = 0) : mDepth(d) { }
-	vector<Subproblem> getChildren()
+	vector<Subproblem> children()
 	{
 		if (mDepth > 5) return vector<Subproblem>();
 		else return vector<Subproblem>{Subproblem(mDepth + 1), Subproblem(mDepth + 1)};

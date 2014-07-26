@@ -11,8 +11,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	BnB::Subproblem s;
-	BnB::Tree<DFSContainer> searchTree(s);
+	BnB::Tree searchTree(BnB::Subproblem(), new BnB::DFS);
 	searchTree.explore();
 	return 0;
 }
