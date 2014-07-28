@@ -17,25 +17,26 @@
 namespace BnB
 {
 
-class SearchContainer
+typedef std::unique_ptr<Subproblem> SubPtr;
+
+class SearchStrategy
 {
 public:
-	virtual void push(const Subproblem& s) = 0;
-	virtual Subproblem pop() = 0;
-	virtual bool empty() = 0;
+	virtual ~SearchStrategy() = 0;
+	virtual void push(Subproblem* s) = 0;
+	virtual SubPtr pop() = 0;
+	virtual bool empty() const = 0;
 };
 
 class Tree
 {
 public:
-	Tree(const Subproblem& root, SearchContainer* searcher);
-	Subproblem explore();
+	Tree(const Subproblem& root, SearchStrategy* searcher);
+	Subproblem* explore();
 
 private:
-	std::unique_ptr<SearchContainer> mActive;
-	Subproblem mIncumb;
-	int mNumExplored;
-	int mNumGenerated;
+	std::unique_ptr<SearchStrategy> mActive;
+	unsigned int mNumExplored;
 };
 
 };

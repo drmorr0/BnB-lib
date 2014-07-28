@@ -7,7 +7,6 @@
  */
 
 #include <vector>
-using std::vector;
 
 namespace BnB
 {
@@ -15,15 +14,10 @@ namespace BnB
 class Subproblem
 {
 public:
-	Subproblem(int d = 0) : mDepth(d) { }
-	vector<Subproblem> children()
-	{
-		if (mDepth > 5) return vector<Subproblem>();
-		else return vector<Subproblem>{Subproblem(mDepth + 1), Subproblem(mDepth + 1)};
-	}
+	Subproblem() { }
+	virtual Subproblem* clone() const = 0;
+	virtual std::vector<Subproblem*> children() = 0;
 
-private:
-	int mDepth;
 };
 
 };

@@ -9,30 +9,34 @@
 namespace BnB
 {
 
-Tree::Tree(const Subproblem& root, SearchContainer* searcher) :
-	mActive(searcher)
+SearchStrategy::~SearchStrategy() { }
+
+Tree::Tree(const Subproblem& root, SearchStrategy* searcher) :
+	mActive(searcher),
+	mNumExplored(0)
 {
-	mActive->push(root);
+	printf("%p\n", searcher);
+	mActive->push(root.clone());
 }
 
-Subproblem Tree::explore()
+Subproblem* Tree::explore()
 {
 	while (!mActive->empty())
 	{
-		Subproblem next = mActive->pop();
+		SubPtr next = mActive->pop();
 
 		// 1. Check to see if the subproblem can be pruned
 		// 2. Check to see if the subproblem is terminal (and update incumbent)
 		// 3. Generate children if neither 1 or 2
 
-		auto children = next.children();
+		auto children = next->children();
 		for_each(children.begin(), children.end(), 
-				[&] (const Subproblem& child) { mActive->push(child); });
+				[&] (Subproblem* child) { mActive->push(child); });
 		++mNumExplored;
 		printf("Explored %d subproblems\n", mNumExplored);
 	}
 
-	return Subproblem();
+	return nullptr;
 }
 
 };

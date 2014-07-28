@@ -1,18 +1,24 @@
 #ifndef DFS_H
 #define DFS_H
 
+#include "bnbtree.h"
+
+#include <cstdio>
+#include <utility>
+
 namespace BnB
 {
 
-class DFS : public SearchContainer
+class DFS : public SearchStrategy
 {
 public:
-    void push(const BnB::Subproblem& s) { mSubproblems.push_back(s); }
-    BnB::Subproblem pop() { auto s = mSubproblems.back(); mSubproblems.pop_back(); return s; }
-    bool empty() { return mSubproblems.empty(); }
+    void push(Subproblem* s) { mSubproblems.push_back(SubPtr(s)); }
+    SubPtr pop() 
+		{ SubPtr s = std::move(mSubproblems.back()); mSubproblems.pop_back(); return s; }
+    bool empty() const { return mSubproblems.empty(); }
 
 private:
-    vector<BnB::Subproblem> mSubproblems;
+	std::vector<SubPtr> mSubproblems;
 };
 
 };
