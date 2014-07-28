@@ -23,7 +23,7 @@ class SearchStrategy
 {
 public:
 	virtual ~SearchStrategy() = 0;
-	virtual void push(Subproblem* s) = 0;
+	virtual void push(SubPtr&& s) = 0;
 	virtual SubPtr pop() = 0;
 	virtual bool empty() const = 0;
 };

@@ -15,8 +15,7 @@ Tree::Tree(const Subproblem& root, SearchStrategy* searcher) :
 	mActive(searcher),
 	mNumExplored(0)
 {
-	printf("%p\n", searcher);
-	mActive->push(root.clone());
+	mActive->push(SubPtr(root.clone()));
 }
 
 Subproblem* Tree::explore()
@@ -30,8 +29,8 @@ Subproblem* Tree::explore()
 		// 3. Generate children if neither 1 or 2
 
 		auto children = next->children();
-		for_each(children.begin(), children.end(), 
-				[&] (Subproblem* child) { mActive->push(child); });
+		for (auto child : children) mActive->push(SubPtr(child));
+
 		++mNumExplored;
 		printf("Explored %d subproblems\n", mNumExplored);
 	}

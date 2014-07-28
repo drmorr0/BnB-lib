@@ -12,7 +12,7 @@ namespace BnB
 class DFS : public SearchStrategy
 {
 public:
-    void push(Subproblem* s) { mSubproblems.push_back(SubPtr(s)); }
+    void push(SubPtr&& s) { mSubproblems.push_back(move(s)); }
     SubPtr pop() 
 		{ SubPtr s = std::move(mSubproblems.back()); mSubproblems.pop_back(); return s; }
     bool empty() const { return mSubproblems.empty(); }
