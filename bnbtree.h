@@ -13,16 +13,21 @@
 #include "subproblem.h"
 
 #include <memory>
+#include <limits>
 
 namespace BnB
 {
-
 typedef std::unique_ptr<Subproblem> SubPtr;
+const double PosInf = std::numeric_limits<double>::infinity();
+const double NegInf = -PosInf;
+
+enum Sense { Minimization, Maximization };
 
 class SearchStrategy
 {
 public:
 	virtual ~SearchStrategy() = 0;
+
 	virtual void push(SubPtr&& s) = 0;
 	virtual SubPtr pop() = 0;
 	virtual bool empty() const = 0;
@@ -31,12 +36,19 @@ public:
 class Tree
 {
 public:
-	Tree(const Subproblem& root, SearchStrategy* searcher);
+	Tree(Subproblem* root, SearchStrategy* searcher, const Sense& sense);
 	Subproblem* explore();
+	void testIncumbent(Subproblem* newIncumbent);
 
 private:
 	std::unique_ptr<SearchStrategy> mActive;
 	unsigned int mNumExplored;
+
+	Sense mSense;
+	double mLB;
+	double mUB;
+
+	SubPtr mIncumbent;
 };
 
 };

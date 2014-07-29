@@ -6,16 +6,22 @@
 #include <cstdio>
 #include <algorithm>
 
+using namespace std;
+
 namespace BnB
 {
 
 SearchStrategy::~SearchStrategy() { }
 
-Tree::Tree(const Subproblem& root, SearchStrategy* searcher) :
+Tree::Tree(Subproblem* root, SearchStrategy* searcher, const Sense& sense) :
 	mActive(searcher),
-	mNumExplored(0)
+	mNumExplored(0),
+	mSense(sense),
+	mLB(NegInf),
+	mUB(PosInf),
+	mIncumbent(nullptr)
 {
-	mActive->push(SubPtr(root.clone()));
+	mActive->push(SubPtr(root));
 }
 
 Subproblem* Tree::explore()
@@ -33,9 +39,25 @@ Subproblem* Tree::explore()
 
 		++mNumExplored;
 		printf("Explored %d subproblems\n", mNumExplored);
+
+		testIncumbent(next.get());
 	}
 
-	return nullptr;
+	return mIncumbent.get();
+}
+
+void Tree::testIncumbent(Subproblem* candidate)
+{
+	if (mSense == Minimization && candidate->objValue() < mUB)
+		mUB = candidate->objValue();
+	else if (mSense == Maximization && candidate->objValue() > mLB)
+		mLB = candidate->objValue();
+	else return;
+
+	// If we get here, then we passed one of the two tests above and need to update
+	// our incumbent pointer.  This shouldn't happen very often, so I'm OK just doing
+	// a copy instead of dealing with move semantics
+	mIncumbent.reset(candidate->clone());
 }
 
 };

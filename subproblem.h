@@ -16,7 +16,12 @@ class Subproblem
 public:
 	Subproblem() { }
 	virtual Subproblem* clone() const = 0;
+
 	virtual std::vector<Subproblem*> children() = 0;
+
+	virtual double objValue() = 0;
+	virtual bool isFeasible() = 0;
+	virtual bool isTerminal() = 0;
 
 };
 
