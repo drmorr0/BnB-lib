@@ -27,8 +27,8 @@ public:
 	}
 
 	double objValue() { return 5; }
-	bool isFeasible() { return true; }
 	bool isTerminal() { return mDepth == 5; }
+	double bound() { return 1; }
 
 private:
 	int mDepth;

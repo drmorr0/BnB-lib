@@ -10,19 +10,15 @@
  *
  */
 
+#include "bnbtypes.h"
 #include "subproblem.h"
 
+#include <map>
 #include <memory>
 #include <limits>
 
 namespace BnB
 {
-typedef std::unique_ptr<Subproblem> SubPtr;
-const double PosInf = std::numeric_limits<double>::infinity();
-const double NegInf = -PosInf;
-
-enum Sense { Minimization, Maximization };
-
 class SearchStrategy
 {
 public:
@@ -38,17 +34,20 @@ class Tree
 public:
 	Tree(Subproblem* root, SearchStrategy* searcher, const Sense& sense);
 	Subproblem* explore();
-	void testIncumbent(Subproblem* newIncumbent);
+	void updateIncumbent(Subproblem* newIncumbent);
+	bool gapClosed();
+
+	double getLB();
+	double getUB();
 
 private:
 	std::unique_ptr<SearchStrategy> mActive;
 	unsigned int mNumExplored;
 
 	Sense mSense;
-	double mLB;
-	double mUB;
 
 	SubPtr mIncumbent;
+	std::map<double,int> mBounds;
 };
 
 };
