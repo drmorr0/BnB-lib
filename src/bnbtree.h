@@ -11,23 +11,17 @@
  */
 
 #include "bnbtypes.h"
-#include "subproblem.h"
 
 #include <map>
 #include <memory>
 #include <limits>
 
+
 namespace BnB
 {
-class SearchStrategy
-{
-public:
-	virtual ~SearchStrategy() = 0;
 
-	virtual void push(SubPtr&& s) = 0;
-	virtual SubPtr pop() = 0;
-	virtual bool empty() const = 0;
-};
+class Subproblem;
+class SearchStrategy;
 
 class Tree
 {
@@ -35,10 +29,10 @@ public:
 	Tree(Subproblem* root, SearchStrategy* searcher, const Sense& sense);
 	Subproblem* explore();
 	void updateIncumbent(Subproblem* newIncumbent);
-	bool gapClosed();
+	bool gapClosed() const;
 
-	double getLB();
-	double getUB();
+	double getLB() const;
+	double getUB() const;
 
 private:
 	std::unique_ptr<SearchStrategy> mActive;

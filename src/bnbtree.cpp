@@ -2,6 +2,8 @@
 // Implementation details for the branch-and-bound tree class
 
 #include "bnbtree.h"
+#include "subproblem.h"
+#include "search.h"
 
 #include <cstdio>
 #include <algorithm>
@@ -75,7 +77,7 @@ void Tree::updateIncumbent(Subproblem* candidate)
 	{ mIncumbent.reset(candidate->clone()); }
 }
 
-bool Tree::gapClosed()
+bool Tree::gapClosed() const
 {
 	if (!mIncumbent) return false;
 
@@ -85,18 +87,18 @@ bool Tree::gapClosed()
 	else return false;
 }
 
-double Tree::getLB()
+double Tree::getLB() const
 {
 	if (mSense == Minimization) 
-		return mBounds.begin()->first;
+		return (mBounds.begin() == mBounds.end()) ? NegInf : mBounds.begin()->first;
 	else return (mIncumbent) ? mIncumbent->objValue() : NegInf;
 }
 
-double Tree::getUB()
+double Tree::getUB() const
 {
 	if (mSense == Minimization)
 		return (mIncumbent) ? mIncumbent->objValue() : PosInf;
-	else return mBounds.rbegin()->first;
+	else return (mBounds.rbegin() == mBounds.rend()) ? PosInf : mBounds.rbegin()->first;
 }
 
 

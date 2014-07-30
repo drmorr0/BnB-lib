@@ -2,6 +2,7 @@
 // Test code for the branch-and-bound library
 
 #include "bnbtree.h"
+#include "subproblem.h"
 #include "dfs.h"
 
 #include <cstdio>
