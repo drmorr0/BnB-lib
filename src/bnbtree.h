@@ -31,17 +31,24 @@ public:
 	void updateIncumbent(Subproblem* newIncumbent);
 	bool gapClosed() const;
 
-	double getLB() const;
-	double getUB() const;
+	double LB() const;
+	double UB() const;
+	double gap() const;
 
 private:
 	std::unique_ptr<SearchStrategy> mActive;
-	unsigned int mNumExplored;
+	size_t mNumExplored;
 
 	Sense mSense;
 
 	SubPtr mIncumbent;
 	std::map<double,int> mBounds;
+
+	void storeBound(Subproblem* s);
+	void delBound(Subproblem* s);
+
+public:
+	void printProgress(Subproblem* s) const;
 };
 
 };

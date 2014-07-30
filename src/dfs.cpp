@@ -18,5 +18,7 @@ SubPtr DFS::pop()
 
 bool DFS::empty() const { return mSubproblems.empty(); }
 
+size_t DFS::size() const { return mSubproblems.size(); }
+
 };
 

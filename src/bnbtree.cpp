@@ -22,6 +22,7 @@ Tree::Tree(Subproblem* root, SearchStrategy* searcher, const Sense& sense) :
 	mIncumbent(nullptr)
 {
 	mActive->push(SubPtr(root));
+	storeBound(root);
 }
 
 Subproblem* Tree::explore()
@@ -38,24 +39,16 @@ Subproblem* Tree::explore()
 		for (auto child : children) 
 		{
 			mActive->push(SubPtr(child));
-
-			// Update the stored bounds used for calculating the gap; it's 
-			// conceivable that the child bound could change between when it's
-			// generated and when it's explored, so we need to keep track of 
-			// the original bound which we stored
-			child->mStoredBound = child->bound();
-			++mBounds[child->mStoredBound];
+			storeBound(child);
 		}
 
 		++mNumExplored;
-		printf("Explored %d subproblems\n", mNumExplored);
-
-		// Update our set of bounds; if no subproblems remain with this particular
-		// bound, we can remove that bound from our set (and potentially close the gap)
-		auto el = mBounds.find(next->mStoredBound); --(el->second);
-		if (el->second == 0) mBounds.erase(el);
 
 		updateIncumbent(next.get());	// If $next is better than the incumbent, update $mIncumbent
+		delBound(next.get());
+
+		printProgress(next.get());
+
 		if (gapClosed()) break;			// Terminate the algorithm if the incumbent equals the bound
 	}
 
@@ -74,7 +67,11 @@ void Tree::updateIncumbent(Subproblem* candidate)
 	if ((!mIncumbent) ||
 		(mSense == Minimization && candidate->objValue() < mIncumbent->objValue()) ||
 		(mSense == Maximization && candidate->objValue() > mIncumbent->objValue()))
-	{ mIncumbent.reset(candidate->clone()); }
+	{ 
+		delBound(mIncumbent.get());
+		mIncumbent.reset(candidate->clone()); 
+		storeBound(mIncumbent.get());
+	}
 }
 
 bool Tree::gapClosed() const
@@ -87,19 +84,64 @@ bool Tree::gapClosed() const
 	else return false;
 }
 
-double Tree::getLB() const
+double Tree::LB() const
 {
 	if (mSense == Minimization) 
 		return (mBounds.begin() == mBounds.end()) ? NegInf : mBounds.begin()->first;
 	else return (mIncumbent) ? mIncumbent->objValue() : NegInf;
 }
 
-double Tree::getUB() const
+double Tree::UB() const
 {
 	if (mSense == Minimization)
 		return (mIncumbent) ? mIncumbent->objValue() : PosInf;
 	else return (mBounds.rbegin() == mBounds.rend()) ? PosInf : mBounds.rbegin()->first;
 }
+
+double Tree::gap() const
+{
+	return (UB() - LB()) / LB();
+}
+
+void Tree::storeBound(Subproblem* s)
+{
+	if (!s) return;
+
+	// Update the stored bounds used for calculating the gap; it's 
+	// conceivable that the child bound could change between when it's
+	// generated and when it's explored, so we need to keep track of 
+	// the original bound which we stored
+	s->mStoredBound = s->bound();
+	++mBounds[s->mStoredBound];
+}
+
+void Tree::delBound(Subproblem* s)
+{
+	if (!s) return;
+
+	// Update our set of bounds; if no subproblems remain with this particular
+	// bound, we can remove that bound from our set (and potentially close the gap)
+	auto el = mBounds.find(s->mStoredBound); 
+	if (el == mBounds.end()) 
+		{ fprintf(stderr, "Bound = %0.2f not stored!\n", s->mStoredBound); exit(-1); }
+
+	--(el->second);
+	if (el->second == 0) mBounds.erase(el);
+	else if (el->second < 0) 
+		{ fprintf(stderr, "Bound = %0.2f has negative stored subproblems!\n", s->mStoredBound); exit(-1); }
+}
+
+void Tree::printProgress(Subproblem* s) const
+{
+	printf("%5lu %5lu %5.2f %5.2f %5.2f; ",
+			mNumExplored,
+			mActive->size(),
+			LB(),
+			UB(),
+			gap());
+	s->print();
+	printf("\n");
+}	
 
 
 };

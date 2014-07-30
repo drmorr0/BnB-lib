@@ -20,6 +20,7 @@ public:
     void push(SubPtr&& s);
     SubPtr pop(); 
     bool empty() const;
+	size_t size() const;
 
 private:
 	std::vector<SubPtr> mSubproblems;

@@ -19,6 +19,7 @@ public:
 	virtual void push(SubPtr&& s) = 0;
 	virtual SubPtr pop() = 0;
 	virtual bool empty() const = 0;
+	virtual size_t size() const = 0;
 };
 
 };

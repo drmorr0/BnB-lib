@@ -6,6 +6,7 @@
  * A class implementing a subproblem for a branch-and-bound (or derivative) search tree
  */
 
+#include "bnbtypes.h"
 #include <vector>
 
 namespace BnB
@@ -35,6 +36,9 @@ public:
 private:
 	friend class Tree;
 	double mStoredBound;
+
+public:
+	virtual void print() { }
 };
 
 };
