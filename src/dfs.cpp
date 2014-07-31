@@ -4,6 +4,8 @@
 #include "dfs.h"
 #include "subproblem.h"
 
+using namespace std;
+
 namespace BnB
 {
 
@@ -11,7 +13,7 @@ void DFS::push(SubPtr&& s) { mSubproblems.push_back(move(s)); }
 
 SubPtr DFS::pop() 
 { 
-	SubPtr s = std::move(mSubproblems.back()); 
+	SubPtr s = move(mSubproblems.back()); 
 	mSubproblems.pop_back(); 
 	return s; 
 }

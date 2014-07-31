@@ -4,6 +4,8 @@
 #include "brfs.h"
 #include "subproblem.h"
 
+using namespace std;
+
 namespace BnB
 {
 
@@ -11,7 +13,7 @@ void BrFS::push(SubPtr&& s) { mSubproblems.push_back(move(s)); }
 
 SubPtr BrFS::pop() 
 { 
-	SubPtr s = std::move(mSubproblems.front()); 
+	SubPtr s = move(mSubproblems.front()); 
 	mSubproblems.pop_front(); 
 	return s; 
 }
