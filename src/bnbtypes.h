@@ -20,6 +20,7 @@ const double NegInf = -PosInf;
 const double Tolerance = 10e-7;
 
 enum Sense { Minimization, Maximization };
+enum Status { Optimal, Infeasible, NodeLimReached, TimeLimReached, Running };
 
 };
 

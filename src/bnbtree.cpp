@@ -25,16 +25,19 @@ Tree::Tree(Subproblem* root, SearchStrategy* searcher, const Sense& sense) :
 	storeBound(root);
 }
 
-Subproblem* Tree::explore()
+Status Tree::explore(size_t nlim, int tlim, int outputFreq)
 {
+	Status status = Running;
+	clock_t start = clock();
+	size_t startNodes = mNumExplored;
 	while (!mActive->empty())
 	{
+		// Get the next subproblem to explore from the set of active subproblems
 		SubPtr next = mActive->pop();
 
-		// 1. Check to see if the subproblem can be pruned
-		// 2. Check to see if the subproblem is terminal (and update incumbent)
-		// 3. Generate children if neither 1 or 2
-
+		// Generate children; it's up to the subproblem to do any and all pruning
+		// tests to determine which children and how many children to generate.  A
+		// path in the tree terminates IFF the subproblem returns no children.
 		auto children = next->children();
 		for (auto child : children) 
 		{
@@ -43,16 +46,27 @@ Subproblem* Tree::explore()
 		}
 
 		++mNumExplored;
-
-		updateIncumbent(next.get());	// If $next is better than the incumbent, update $mIncumbent
+		
+		// If $next is better than the incumbent, update $mIncumbent
+		updateIncumbent(next.get());	
 		delBound(next.get());
 
-		printProgress(next.get());
-
-		if (gapClosed()) break;			// Terminate the algorithm if the incumbent equals the bound
+		// Print progress 
+		if (mNumExplored % outputFreq == 0)
+			printProgress(next.get(), false);
+		
+		// Terminate the algorithm if the incumbent equals the bound, if we've exceeded the
+		// node limite, or if we've exceeded the time limit
+		if (gapClosed()) break;	
+		if (nlim != -1 && mNumExplored > nlim + startNodes) { status = NodeLimReached; break; }
+		if (tlim != -1 && (clock() - start) / CLOCKS_PER_SEC > tlim) 
+			{ status = TimeLimReached; break; }
 	}
 
-	return mIncumbent.get();
+	if (status == Running)
+		status = mIncumbent ? Optimal : Infeasible;
+
+	return status;
 }
 
 void Tree::updateIncumbent(Subproblem* candidate)
@@ -71,6 +85,7 @@ void Tree::updateIncumbent(Subproblem* candidate)
 		delBound(mIncumbent.get());
 		mIncumbent.reset(candidate->clone()); 
 		storeBound(mIncumbent.get());
+		printProgress(mIncumbent.get(), true);
 	}
 }
 
@@ -131,15 +146,17 @@ void Tree::delBound(Subproblem* s)
 		{ fprintf(stderr, "Bound = %0.2f has negative stored subproblems!\n", s->mStoredBound); exit(-1); }
 }
 
-void Tree::printProgress(Subproblem* s) const
+void Tree::printProgress(Subproblem* s, bool newIncumbent) const
 {
+	if (newIncumbent) printf("* ");
+	else printf("  ");
 	printf("%5lu %5lu %5.2f %5.2f %5.2f; ",
 			mNumExplored,
 			mActive->size(),
 			LB(),
 			UB(),
 			gap());
-	s->print();
+	if (s) s->print();
 	printf("\n");
 }	
 

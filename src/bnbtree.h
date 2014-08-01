@@ -27,7 +27,8 @@ class Tree
 {
 public:
 	Tree(Subproblem* root, SearchStrategy* searcher, const Sense& sense);
-	Subproblem* explore();
+	Status explore(size_t nlim = -1, int tlim = -1, int outputFreq = 1);
+	Subproblem* incumbent() { return mIncumbent.get(); }
 	void updateIncumbent(Subproblem* newIncumbent);
 	bool gapClosed() const;
 
@@ -48,7 +49,7 @@ private:
 	void delBound(Subproblem* s);
 
 public:
-	void printProgress(Subproblem* s) const;
+	void printProgress(Subproblem* s, bool newIncumbent) const;
 };
 
 };
