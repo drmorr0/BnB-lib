@@ -56,7 +56,7 @@ Status Tree::explore(size_t nlim, int tlim, int outputFreq)
 			printProgress(next.get(), false);
 		
 		// Terminate the algorithm if the incumbent equals the bound, if we've exceeded the
-		// node limite, or if we've exceeded the time limit
+		// node limit, or if we've exceeded the time limit
 		if (gapClosed()) break;	
 		if (nlim != -1 && mNumExplored > nlim + startNodes) { status = NodeLimReached; break; }
 		if (tlim != -1 && (clock() - start) / CLOCKS_PER_SEC > tlim) 
@@ -115,7 +115,7 @@ double Tree::UB() const
 
 double Tree::gap() const
 {
-	return (UB() - LB()) / LB();
+	return (UB() - LB()) / UB();
 }
 
 void Tree::storeBound(Subproblem* s)
