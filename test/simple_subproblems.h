@@ -17,7 +17,7 @@ class SimpleSubproblem : public BnB::CbfsSubproblem
 public:
 	SimpleSubproblem(unsigned int id = 0) : mId(id), mDepth(0), mNumPosAssgn(0) { }
 	BnB::Subproblem* clone() const { return new SimpleSubproblem(*this); }
-	vector<BnB::Subproblem*> children()
+	vector<BnB::Subproblem*> children(double lb, double ub)
 	{
 		vector<BnB::Subproblem*> c;
 		if (mId > 6) return c;

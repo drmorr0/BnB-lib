@@ -17,8 +17,9 @@ class Subproblem
 public:
 	Subproblem() { }
 	virtual Subproblem* clone() const = 0;
+	virtual ~Subproblem() { };
 
-	virtual std::vector<Subproblem*> children() = 0;
+	virtual std::vector<Subproblem*> children(double lb, double ub) = 0;
 
 	/* Return the current value of the (partial) solution */
 	virtual double objValue() = 0; 
@@ -32,10 +33,12 @@ public:
 	 * function, which always returns infinity.
 	 */
 	virtual double bound() { return PosInf; }
+	size_t id() { return mId; }
 
 private:
 	friend class Tree;
 	double mStoredBound;
+	size_t mId;
 
 public:
 	virtual void print() { }

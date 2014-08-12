@@ -37,11 +37,10 @@ public:
 	double gap() const;
 
 private:
-	std::unique_ptr<SearchStrategy> mActive;
-	size_t mNumExplored;
-
 	Sense mSense;
+	size_t mNextId;
 
+	std::unique_ptr<SearchStrategy> mActive;
 	SubPtr mIncumbent;
 	std::map<double,int> mBounds;
 
@@ -50,6 +49,12 @@ private:
 
 public:
 	void printProgress(Subproblem* s, bool newIncumbent) const;
+	void printStats(Status status) const;
+
+private:
+	// Statistics tracking
+	size_t mNumExplored, mTreeSize;
+	clock_t mCpuTicks;
 };
 
 };

@@ -16,10 +16,13 @@ namespace BnB
 SearchStrategy::~SearchStrategy() { }
 
 Tree::Tree(Subproblem* root, SearchStrategy* searcher, const Sense& sense) :
-	mActive(searcher),
-	mNumExplored(0),
 	mSense(sense),
-	mIncumbent(nullptr)
+	mNextId(0),
+	mActive(searcher),
+	mIncumbent(nullptr),
+	mNumExplored(0),
+	mTreeSize(1),	// There's always a root
+	mCpuTicks(0)
 {
 	mActive->push(SubPtr(root));
 	storeBound(root);
@@ -30,7 +33,8 @@ Status Tree::explore(size_t nlim, int tlim, int outputFreq)
 	Status status = Running;
 	clock_t start = clock();
 	size_t startNodes = mNumExplored;
-	while (!mActive->empty())
+
+	while (true)	// Do termination checks at the end so status can be set correctly
 	{
 		// Get the next subproblem to explore from the set of active subproblems
 		SubPtr next = mActive->pop();
@@ -38,33 +42,34 @@ Status Tree::explore(size_t nlim, int tlim, int outputFreq)
 		// Generate children; it's up to the subproblem to do any and all pruning
 		// tests to determine which children and how many children to generate.  A
 		// path in the tree terminates IFF the subproblem returns no children.
-		auto children = next->children();
+		auto children = next->children(LB(), UB());
 		for (auto child : children) 
 		{
 			mActive->push(SubPtr(child));
 			storeBound(child);
+			child->mId = mNextId++;
 		}
 
-		++mNumExplored;
-		
 		// If $next is better than the incumbent, update $mIncumbent
 		updateIncumbent(next.get());	
 		delBound(next.get());
 
-		// Print progress 
+		// Update stats and print progress 
+		mTreeSize += children.size(); ++mNumExplored;
 		if (mNumExplored % outputFreq == 0)
 			printProgress(next.get(), false);
 		
-		// Terminate the algorithm if the incumbent equals the bound, if we've exceeded the
-		// node limit, or if we've exceeded the time limit
+		// Terminate the algorithm if we've explored the entire tree, if the incumbent equals 
+		// the bound, if we've exceeded the node limit, or if we've exceeded the time limit
+		if (mActive->empty()) { status = mIncumbent ? Optimal : Infeasible; break; }
 		if (gapClosed()) break;	
 		if (nlim != -1 && mNumExplored > nlim + startNodes) { status = NodeLimReached; break; }
 		if (tlim != -1 && (clock() - start) / CLOCKS_PER_SEC > tlim) 
 			{ status = TimeLimReached; break; }
 	}
 
-	if (status == Running)
-		status = mIncumbent ? Optimal : Infeasible;
+	mCpuTicks += clock() - start;
+	printStats(status);
 
 	return status;
 }
@@ -150,15 +155,40 @@ void Tree::printProgress(Subproblem* s, bool newIncumbent) const
 {
 	if (newIncumbent) printf("* ");
 	else printf("  ");
-	printf("%5lu %5lu %5.2f %5.2f %5.2f; ",
+	printf("%5lu %5lu %5lu %5.2f %5.2f %5.2f; ",
 			mNumExplored,
 			mActive->size(),
+			s->id(),
 			LB(),
 			UB(),
 			gap());
 	if (s) s->print();
 	printf("\n");
 }	
+
+void Tree::printStats(Status status) const
+{
+	printf("\nTime: %0.2fs; Nodes explored: %ld; Total tree size: %ld\n", mCpuTicks / (double)CLOCKS_PER_SEC, mNumExplored, mTreeSize);
+	printf("Status: ");
+	switch (status)
+	{
+		case Optimal: printf("Optimal"); break;
+		case Infeasible: printf("Infeasible"); break;
+		case NodeLimReached: printf("Node limit reached"); break;
+		case TimeLimReached: printf("Time limit reached"); break;
+		case Running: printf("Running"); break;
+		default: printf("Unknown"); break;
+	}
+	if (mIncumbent)
+	{
+		printf("; Incumbent value: %0.2f\n", mIncumbent->objValue());
+		printf("Incumbent: ");
+		mIncumbent->print();
+		printf("\n");
+	}
+	else printf("\n");
+	printf("\n");
+}
 
 
 };
