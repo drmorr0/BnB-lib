@@ -62,7 +62,7 @@ Status Tree::explore(size_t nlim, int tlim, int outputFreq)
 		// Terminate the algorithm if we've explored the entire tree, if the incumbent equals 
 		// the bound, if we've exceeded the node limit, or if we've exceeded the time limit
 		if (mActive->empty()) { status = mIncumbent ? Optimal : Infeasible; break; }
-		if (gapClosed()) break;	
+		if (gapClosed()) { status = Optimal; break;	}
 		if (nlim != -1 && mNumExplored > nlim + startNodes) { status = NodeLimReached; break; }
 		if (tlim != -1 && (clock() - start) / CLOCKS_PER_SEC > tlim) 
 			{ status = TimeLimReached; break; }
