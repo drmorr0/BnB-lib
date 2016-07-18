@@ -6,6 +6,7 @@
 #include "search.h"
 
 #include <cstdio>
+#include <cmath>
 #include <algorithm>
 
 using namespace std;
@@ -101,7 +102,7 @@ bool Tree::gapClosed() const
 	double bound = (mSense == Minimization) ? mBounds.begin()->first : mBounds.rbegin()->first;
 	if (fabs(bound - mIncumbent->objValue()) < Tolerance)
 		return true;
-	else return false;
+	return false;
 }
 
 double Tree::LB() const
