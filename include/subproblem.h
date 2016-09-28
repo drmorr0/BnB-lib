@@ -15,7 +15,7 @@ namespace BnB
 class Subproblem
 {
 public:
-	Subproblem() { }
+	Subproblem() : mId(0), mStoredBound(PosInf) { }
 	virtual Subproblem* clone() const = 0;
 	virtual ~Subproblem() { };
 
@@ -37,8 +37,8 @@ public:
 
 private:
 	friend class Tree;
-	double mStoredBound;
 	size_t mId;
+	double mStoredBound;
 
 public:
 	virtual void print() { }

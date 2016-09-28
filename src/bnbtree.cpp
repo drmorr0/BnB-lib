@@ -35,6 +35,7 @@ Status Tree::explore(size_t nlim, int tlim, int outputFreq)
 	clock_t start = clock();
 	size_t startNodes = mNumExplored;
 
+    printf("   iter  size  curr    lb    ub   gap\n");
 	while (true)	// Do termination checks at the end so status can be set correctly
 	{
 		// Get the next subproblem to explore from the set of active subproblems
