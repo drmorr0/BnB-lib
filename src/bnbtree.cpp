@@ -17,6 +17,8 @@ namespace BnB
 SearchStrategy::~SearchStrategy() { }
 
 Tree::Tree(Subproblem* root, SearchStrategy* searcher, const Sense& sense) :
+	mVerbosity(1),
+	mOutputFreq(1),
 	mSense(sense),
 	mNextId(0),
 	mActive(searcher),
@@ -29,13 +31,20 @@ Tree::Tree(Subproblem* root, SearchStrategy* searcher, const Sense& sense) :
 	storeBound(root);
 }
 
-Status Tree::explore(size_t nlim, int tlim, int outputFreq)
+void Tree::setOutputLevel(int verbosity, int outputFreq)
+{
+	mVerbosity = verbosity;
+	mOutputFreq = outputFreq;
+}
+
+Status Tree::explore(size_t nlim, int tlim)
 {
 	Status status = Running;
 	clock_t start = clock();
 	size_t startNodes = mNumExplored;
 
-    printf("   iter  size  curr    lb    ub   gap\n");
+	if (mVerbosity > 1)
+		printf("   iter  size  curr    lb    ub   gap\n");
 	while (true)	// Do termination checks at the end so status can be set correctly
 	{
 		// Get the next subproblem to explore from the set of active subproblems
@@ -58,7 +67,7 @@ Status Tree::explore(size_t nlim, int tlim, int outputFreq)
 
 		// Update stats and print progress 
 		mTreeSize += children.size(); ++mNumExplored;
-		if (mNumExplored % outputFreq == 0)
+		if (mVerbosity > 1 && mNumExplored % mOutputFreq == 0)
 			printProgress(next.get(), false);
 		
 		// Terminate the algorithm if we've explored the entire tree, if the incumbent equals 
@@ -71,7 +80,8 @@ Status Tree::explore(size_t nlim, int tlim, int outputFreq)
 	}
 
 	mCpuTicks += clock() - start;
-	printStats(status);
+	if (mVerbosity > 0)
+		printStats(status);
 
 	return status;
 }
@@ -92,7 +102,8 @@ void Tree::updateIncumbent(Subproblem* candidate)
 		delBound(mIncumbent.get());
 		mIncumbent.reset(candidate->clone()); 
 		storeBound(mIncumbent.get());
-		printProgress(mIncumbent.get(), true);
+		if (mVerbosity > 1)
+			printProgress(mIncumbent.get(), true);
 	}
 }
 
@@ -164,7 +175,7 @@ void Tree::printProgress(Subproblem* s, bool newIncumbent) const
 			LB(),
 			UB(),
 			gap());
-	if (s) s->print();
+	if (mVerbosity > 2 && s) s->print();
 	printf("\n");
 }	
 

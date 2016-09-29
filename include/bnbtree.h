@@ -27,7 +27,10 @@ class Tree
 {
 public:
 	Tree(Subproblem* root, SearchStrategy* searcher, const Sense& sense);
-	Status explore(size_t nlim = -1, int tlim = -1, int outputFreq = 1);
+
+	void setOutputLevel(int verbsoity, int outputFreq);
+
+	Status explore(size_t nlim = -1, int tlim = -1);
 	Subproblem* incumbent() { return mIncumbent.get(); }
 	void updateIncumbent(Subproblem* newIncumbent);
 	bool gapClosed() const;
@@ -37,6 +40,7 @@ public:
 	double gap() const;
 
 private:
+	int mVerbosity, mOutputFreq;
 	Sense mSense;
 	size_t mNextId;
 

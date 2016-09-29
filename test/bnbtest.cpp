@@ -16,6 +16,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
 	BnB::Tree searchTree(new SimpleSubproblem, new BnB::CBFS, BnB::Minimization);
+	searchTree.setOutputLevel(3, 1);
 	BnB::Status status = searchTree.explore();
 	printf("BnB terminated with status %d; ", status);
 	if (searchTree.incumbent()) 
