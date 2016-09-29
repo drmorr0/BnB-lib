@@ -41,7 +41,7 @@ private:
 	double mStoredBound;
 
 public:
-	virtual void print() { }
+	virtual void print(FILE* out=stdout) const { }
 };
 
 };
